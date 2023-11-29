@@ -1,0 +1,54 @@
+# https://taskfile.dev
+version: '3'
+vars:
+  IMG: sgaunet/template-api:latest
+
+includes:
+  dev: ./Taskfile_dev.yml
+
+tasks:
+  default:
+    desc: "List available tasks"
+    cmds:
+      - task -a
+
+  run-local:
+    desc: "Run the application locally"
+    dir: tests/docker
+    cmds:
+      - task: build
+      - docker-compose up -d
+
+  build:
+    cmds:
+      - docker build . -t {{.IMG}}
+
+  push:
+    desc: "Push the docker image"
+    cmds:
+      - docker push {{.IMG}}
+  
+  sqlc:
+    desc: "sqlc generate"
+    cmds:
+      - sqlc generate
+
+  tests:
+    desc: "Run the tests"
+    dir: tests
+    cmds:
+      - task: run-local
+      - venom run docker.yml --var-from-file env-tests.yml --output-dir="log" --stop-on-failure
+
+  snapshot:
+    desc: "Create a snapshot release"
+    cmds:
+      - GITHUB_TOKEN="" goreleaser --clean --snapshot
+      # - GITLAB_TOKEN="" goreleaser --clean --snapshot
+    
+  release:
+    desc: "Create a release"
+    cmds:
+      - GITHUB_TOKEN="" goreleaser --clean
+      # - GITLAB_TOKEN="" goreleaser --clean
+    
