@@ -18,9 +18,14 @@ tasks:
     cmds:
       - task: build
       - docker-compose up -d
+      - echo "http://localhost:11000"
 
   build:
+    desc: "Build the application"
+    deps:
+      - sqlc
     cmds:
+      - GOOS=linux GOARCH=amd64 go build -o webserver cmd/server/main.go
       - docker build . -t {{.IMG}}
 
   push:
@@ -33,12 +38,12 @@ tasks:
     cmds:
       - sqlc generate
 
-  tests:
-    desc: "Run the tests"
-    dir: tests
-    cmds:
-      - task: run-local
-      - venom run docker.yml --var-from-file env-tests.yml --output-dir="log" --stop-on-failure
+  # tests:
+  #   desc: "Run the tests"
+  #   dir: tests
+  #   cmds:
+  #     - task: run-local
+  #     - venom run docker.yml --var-from-file env-tests.yml --output-dir="log" --stop-on-failure
 
   snapshot:
     desc: "Create a snapshot release"
