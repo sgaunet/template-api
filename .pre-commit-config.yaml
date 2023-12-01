@@ -15,7 +15,7 @@ repos:
       - id: go-lint
       - id: go-unit-tests
       - id: gofumpt # requires github.com/mvdan/gofumpt
-    #   - id: go-err-check # requires github.com/kisielk/errcheck
+      - id: go-err-check # requires github.com/kisielk/errcheck
       - id: go-static-check # install https://staticcheck.io/docs/
       - id: golangci-lint # requires github.com/golangci/golangci-lint
         args: [--config=.github/linters/.golangci.yml] # optional
@@ -25,6 +25,6 @@ repos:
   - repo: https://github.com/sgaunet/pre-commit
     rev: v0.2.0
     hooks:
-    # - id: osv-scanner
+    - id: osv-scanner
     - id: govulncheck
     - id: gitleaks
