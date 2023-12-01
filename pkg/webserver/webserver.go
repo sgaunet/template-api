@@ -57,12 +57,7 @@ func NewWebServer(cfg config.ConfigApp, log *logrus.Logger) (*WebServer, error) 
 	// 	return nil, fmt.Errorf("failed to init redis connection: %w", err)
 	// }
 	// Add routes
-	w.authorsSvc.RegisterHandlers(w.app)
-	fmt.Println("routes added")
-	w.app.Get("/authors", w.authorsSvc.List)
-	w.app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World 👋!")
-	})
+	w.initRoutes()
 	return w, nil
 }
 

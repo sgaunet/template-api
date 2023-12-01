@@ -19,14 +19,6 @@ func NewService(queries *database.Queries) *Service {
 	return &Service{queries: queries}
 }
 
-func (s *Service) RegisterHandlers(router *fiber.App) {
-	router.Post("/authors", s.Create)
-	router.Get("/authors/:id", s.Get)
-	router.Put("/authors/:id", s.FullUpdate)
-	router.Delete("/authors/:id", s.Delete)
-	router.Get("/authors", s.List)
-}
-
 type apiAuthor struct {
 	ID   int64
 	Name string `json:"name,omitempty" binding:"required,max=32"`
