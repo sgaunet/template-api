@@ -12,10 +12,10 @@ import (
 )
 
 type Service struct {
-	queries *database.Queries
+	queries database.Querier
 }
 
-func NewService(queries *database.Queries) *Service {
+func NewService(queries database.Querier) *Service {
 	return &Service{queries: queries}
 }
 
@@ -26,23 +26,15 @@ type apiAuthor struct {
 }
 
 func (s *Service) Create(c *fiber.Ctx) error {
-	payload := struct {
-		Name string `json:"name"`
-		Bio  string `json:"bio"`
-	}{}
+	c.Accepts("application/json")
+	payload := database.CreateAuthorParams{}
 	if err := c.BodyParser(&payload); err != nil {
 		return err
 	}
-	// Create author
-	params := database.CreateAuthorParams{
-		Name: payload.Name,
-		Bio:  payload.Bio,
-	}
-	author, err := s.queries.CreateAuthor(context.Background(), params)
+	author, err := s.queries.CreateAuthor(context.Background(), payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	// Build response
 	response := fromDB(author)
 	c.Status(http.StatusCreated)
 	return c.JSON(response)
@@ -57,7 +49,6 @@ func fromDB(author database.Author) *apiAuthor {
 }
 
 func (s *Service) Get(c *fiber.Ctx) error {
-	// Parse request
 	id := c.Query("id")
 	if id == "" {
 		return fiber.NewError(fiber.StatusInternalServerError, errors.New("id is required").Error())
@@ -75,13 +66,11 @@ func (s *Service) Get(c *fiber.Ctx) error {
 		}
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	// Build response
 	response := fromDB(author)
 	return c.JSON(response)
 }
 
 func (s *Service) Delete(c *fiber.Ctx) error {
-	// Parse request
 	id := c.Query("id")
 	if id == "" {
 		return fiber.NewError(fiber.StatusInternalServerError, errors.New("id is required").Error())
@@ -102,15 +91,10 @@ func (s *Service) Delete(c *fiber.Ctx) error {
 }
 
 func (s *Service) List(c *fiber.Ctx) error {
-	// List authors
 	authors, err := s.queries.ListAuthors(context.Background())
 	if err != nil {
 		return fiber.NewError(fiber.StatusServiceUnavailable, errors.New("problem").Error())
 	}
-	// if len(authors) == 0 {
-	// 	return c.SendStatus(http.StatusNotFound)
-	// }
-	// Build response
 	var response []*apiAuthor
 	for _, author := range authors {
 		response = append(response, fromDB(author))
@@ -142,7 +126,6 @@ func (s *Service) FullUpdate(c *fiber.Ctx) error {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 	}
-	// Build response
 	response := fromDB(author)
 	return c.JSON(response)
 }
