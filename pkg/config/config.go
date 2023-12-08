@@ -4,35 +4,33 @@ import (
 	"fmt"
 	"os"
 
-	"gopkg.in/yaml.v2"
+	"github.com/spf13/viper"
 )
 
-type ConfigApp struct {
-	// RedisDSN        string `yaml:"redisdsn"`
-	// RedisStream     string `yaml:"redisstream"`
-	DbDSN      string `yaml:"dbdsn"`
-	DebugLevel string `yaml:"debuglevel"`
+type Config struct {
+	// RedisDSN        string `mapstructure:"redisdsn"`
+	// RedisStream     string `mapstructure:"redisstream"`
+	DbDSN      string `mapstructure:"dbdsn"`
+	DebugLevel string `mapstructure:"debuglevel"`
 }
 
-func ReadyamlConfigFile(filename string) (ConfigApp, error) {
-	var yamlConfig ConfigApp
-	yamlFile, err := os.ReadFile(filename)
-	if err != nil {
-		fmt.Printf("Error reading YAML file: %s\n", err)
-		return yamlConfig, err
+func LoadConfigFromFile(cfgFilePath string) (*Config, error) {
+	var C Config
+	viper.SetConfigFile(cfgFilePath)
+	// viper.SetConfigName(cfgFilePath) // name of config file (without extension)
+	// viper.SetConfigType("yml")       // REQUIRED if the config file does not have the extension in the name
+	// viper.AddConfigPath("/etc/appname/")   // path to look for the config file in
+	// viper.AddConfigPath("$HOME/.appname")  // call multiple times to add many search paths
+	// viper.AddConfigPath(".") // optionally look for config in the working directory
+	viper.AutomaticEnv()
+	err := viper.ReadInConfig() // Find and read the config file
+	if err != nil {             // Handle errors reading the config file
+		// return &C, fmt.Errorf("fatal error config file: %w", err)
+		fmt.Fprintf(os.Stderr, "error: cannot read config file: %s\n", err)
 	}
-	err = yaml.Unmarshal(yamlFile, &yamlConfig)
+	err = viper.Unmarshal(&C)
 	if err != nil {
-		fmt.Printf("Error parsing YAML file: %s\n", err)
-		return yamlConfig, err
+		return &C, fmt.Errorf("unable to decode into struct, %v", err)
 	}
-	return yamlConfig, err
-}
-
-func GetConfigFromEnvVar() ConfigApp {
-	var cfg ConfigApp
-	cfg.DbDSN = os.Getenv("DBDSN")
-	// cfg.RedisDSN = os.Getenv("REDISDSN")
-	cfg.DebugLevel = os.Getenv("DEBUGLEVEL")
-	return cfg
+	return &C, nil
 }

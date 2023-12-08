@@ -23,7 +23,6 @@ func main() {
 		err         error
 		cfgFile     string
 		versionFlag bool
-		cfg         config.ConfigApp
 	)
 	flag.BoolVar(&versionFlag, "version", false, "Print version and exit")
 	flag.StringVar(&cfgFile, "config", "", "config file")
@@ -35,15 +34,12 @@ func main() {
 	}
 
 	// Load config
-	if cfgFile == "" {
-		cfg = config.GetConfigFromEnvVar()
-	} else {
-		cfg, err = config.ReadyamlConfigFile(cfgFile)
-		if err != nil {
-			fmt.Printf("Error reading YAML file: %s\n", err)
-			os.Exit(1)
-		}
+	cfg, err := config.LoadConfigFromFile(cfgFile)
+	if err != nil {
+		fmt.Printf("Error reading YAML file: %s\n", err)
+		os.Exit(1)
 	}
+
 	log := initTrace(cfg.DebugLevel)
 	w, err := webserver.NewWebServer(cfg, log)
 	if err != nil {

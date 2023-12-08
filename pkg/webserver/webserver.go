@@ -19,10 +19,10 @@ type WebServer struct {
 	authorsSvc *authors.Service
 	// redisClient *redis.Client
 	app *fiber.App
-	cfg config.ConfigApp
+	cfg *config.Config
 }
 
-func NewWebServer(cfg config.ConfigApp, log *logrus.Logger) (*WebServer, error) {
+func NewWebServer(cfg *config.Config, log *logrus.Logger) (*WebServer, error) {
 	app := fiber.New(fiber.Config{
 		// Prefork:       true,
 		CaseSensitive: true,
