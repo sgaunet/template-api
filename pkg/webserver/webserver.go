@@ -7,14 +7,14 @@ import (
 	// "github.com/go-redis/redis/v7"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/sgaunet/template-api/api/authors"
 	"github.com/sgaunet/template-api/internal/database"
 	"github.com/sgaunet/template-api/pkg/config"
-	"github.com/sirupsen/logrus"
 )
 
 type WebServer struct {
-	log        *logrus.Logger
 	db         *sql.DB
 	authorsSvc *authors.Service
 	// redisClient *redis.Client
@@ -22,7 +22,7 @@ type WebServer struct {
 	cfg *config.Config
 }
 
-func NewWebServer(cfg *config.Config, log *logrus.Logger) (*WebServer, error) {
+func NewWebServer(cfg *config.Config) (*WebServer, error) {
 	app := fiber.New(fiber.Config{
 		// Prefork:       true,
 		CaseSensitive: true,
@@ -30,6 +30,13 @@ func NewWebServer(cfg *config.Config, log *logrus.Logger) (*WebServer, error) {
 		// ServerHeader:  "Fiber",
 		// AppName:       "Test App v1.0.1",
 	})
+
+	// Logging Request ID
+	app.Use(requestid.New())
+	app.Use(logger.New(logger.Config{
+		// For more options, see the Config section
+		Format: "${pid} ${locals:requestid} ${status} - ${method} ${path}​\n",
+	}))
 
 	// app.Use(limiter.New(limiter.Config{
 	// 	Max:        20,
@@ -43,7 +50,6 @@ func NewWebServer(cfg *config.Config, log *logrus.Logger) (*WebServer, error) {
 	// }))
 	// app.Static("/bootstrap", "./static/bootstrap")
 	w := &WebServer{
-		log: log,
 		app: app,
 		cfg: cfg,
 	}

@@ -8,10 +8,9 @@ import (
 )
 
 type Config struct {
+	DbDSN string `mapstructure:"dbdsn"`
 	// RedisDSN        string `mapstructure:"redisdsn"`
 	// RedisStream     string `mapstructure:"redisstream"`
-	DbDSN      string `mapstructure:"dbdsn"`
-	DebugLevel string `mapstructure:"debuglevel"`
 }
 
 func LoadConfigFromFile(cfgFilePath string) (*Config, error) {
