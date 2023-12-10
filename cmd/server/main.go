@@ -32,10 +32,13 @@ func main() {
 		os.Exit(0)
 	}
 
-	// Load config
-	cfg, err := config.LoadConfigFromFile(cfgFile)
+	cfg, err := config.LoadConfigFromFileOrEnvVar(cfgFile)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error reading YAML file: %s\n", err)
+		os.Exit(1)
+	}
+	if !cfg.IsValid() {
+		fmt.Fprintf(os.Stderr, "Invalid configuration\n")
 		os.Exit(1)
 	}
 

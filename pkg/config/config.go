@@ -2,8 +2,8 @@ package config
 
 import (
 	"fmt"
-	"os"
 
+	"github.com/sgaunet/dsn/v2/pkg/dsn"
 	"github.com/spf13/viper"
 )
 
@@ -13,7 +13,7 @@ type Config struct {
 	// RedisStream     string `mapstructure:"redisstream"`
 }
 
-func LoadConfigFromFile(cfgFilePath string) (*Config, error) {
+func LoadConfigFromFileOrEnvVar(cfgFilePath string) (*Config, error) {
 	var C Config
 	viper.SetConfigFile(cfgFilePath)
 	// viper.SetConfigName(cfgFilePath) // name of config file (without extension)
@@ -25,11 +25,19 @@ func LoadConfigFromFile(cfgFilePath string) (*Config, error) {
 	err := viper.ReadInConfig() // Find and read the config file
 	if err != nil {             // Handle errors reading the config file
 		// return &C, fmt.Errorf("fatal error config file: %w", err)
-		fmt.Fprintf(os.Stderr, "error: cannot read config file: %s\n", err)
+		fmt.Printf("info: configuration file not found")
 	}
 	err = viper.Unmarshal(&C)
 	if err != nil {
 		return &C, fmt.Errorf("unable to decode into struct, %v", err)
 	}
 	return &C, nil
+}
+
+func (c *Config) IsValid() bool {
+	if c.DbDSN == "" {
+		return false
+	}
+	_, err := dsn.New(c.DbDSN)
+	return err == nil
 }
