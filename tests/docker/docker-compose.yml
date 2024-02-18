@@ -1,0 +1,32 @@
+version: '3.7'
+services:
+    postgres-server:
+        image: postgres:15
+        ports:
+        - 5432:5432
+        stop_grace_period: 1m
+        environment:
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=password
+
+    # redis-server:
+    #   image: redis:6.2.5
+    #   ports:
+    #   - 6379:6379
+    #   stop_grace_period: 1m
+    #   environment:
+    #   - ALLOW_EMPTY_PASSWORD=yes
+
+    app:
+      image: sgaunet/template-api:latest
+      ports:
+        - 11000:3000
+      # env_file: .env.example
+      # volumes:
+      #   - ./data-webserver:/data
+      environment:
+        DBDSN: postgres://postgres:password@postgres-server:5432/postgres?sslmode=disable
+        # DEBUGLEVEL: info # actually not used
+      depends_on:
+        - postgres-server
+        # - redis-server

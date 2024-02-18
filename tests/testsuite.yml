@@ -1,0 +1,31 @@
+name: integration tests
+vars:
+  pgdsn: "postgres://postgres:password@localhost:5432/postgres?sslmode=disable"
+
+testcases:
+
+- name: check root endpoint
+  steps:
+  - type: exec
+    script: |
+      cd {{.venom.testsuite.workdir}}/..
+      curl -s http://localhost:11000 | grep -q "OK"
+    assertions:
+    - result.code ShouldEqual 0
+
+- name: insert data example
+  steps:
+  - type: exec
+    script: |
+      # cd {{.venom.testsuite.workdir}}/..
+      usql {{.pgdsn}} -f script.sql
+    assertions:
+    - result.code ShouldEqual 0
+
+- name: remove all data
+  steps:
+  - type: exec
+    script: |
+      usql {{.pgdsn}} -c "delete from authors"
+    assertions:
+    - result.code ShouldEqual 0
