@@ -4,7 +4,7 @@ go 1.21.4
 
 require (
 	github.com/amacneil/dbmate/v2 v2.8.0
-	github.com/go-chi/chi/v5 v5.0.11
+	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-playground/validator/v10 v10.18.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/sgaunet/dsn v1.1.0
