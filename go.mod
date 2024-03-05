@@ -8,7 +8,7 @@ require (
 	github.com/go-playground/validator/v10 v10.18.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/sgaunet/dsn v1.1.0
-	github.com/sgaunet/dsn/v2 v2.0.2
+	github.com/sgaunet/dsn/v2 v2.2.0
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.8.4
 	github.com/testcontainers/testcontainers-go v0.28.0

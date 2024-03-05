@@ -138,8 +138,8 @@ github.com/sagikazarmark/slog-shim v0.1.0 h1:diDBnUNK9N/354PgrxMywXnAwEr1QZcOr6g
 github.com/sagikazarmark/slog-shim v0.1.0/go.mod h1:SrcSrq8aKtyuqEI1uvTDTK1arOWRIczQRv+GVI1AkeQ=
 github.com/sgaunet/dsn v1.1.0 h1:gDCpxwrgjRrvgLcKlZck6FNayBPlhMXSUwa+GMeFUPk=
 github.com/sgaunet/dsn v1.1.0/go.mod h1:wj8qyyGN42P7YDb/UhpRVt7AK8j0EJKfpSwiHhD/Hwg=
-github.com/sgaunet/dsn/v2 v2.0.2 h1:PR9OE/Man9OeOzNxlmYag0vlpvrtLeN6LoMi2AXHTaY=
-github.com/sgaunet/dsn/v2 v2.0.2/go.mod h1:r8OQBz3tvSgaSHkfFPZ0nj5P7JIm7NrMdmEhBlP4Urg=
+github.com/sgaunet/dsn/v2 v2.2.0 h1:yXYktWkW6sGa/AGsEa81lMPI0T7VuvnXWBLgY8mvUHg=
+github.com/sgaunet/dsn/v2 v2.2.0/go.mod h1:cu7O2lglQkm9LxRlD/Us70E0KnOSLjfBI3MuT+xcWJQ=
 github.com/shirou/gopsutil/v3 v3.23.12 h1:z90NtUkp3bMtmICZKpC4+WaknU1eXtp5vtbQ11DgpE4=
 github.com/shirou/gopsutil/v3 v3.23.12/go.mod h1:1FrWgea594Jp7qmjHUUPlJDTPgcsb9mGnXDxavtikzM=
 github.com/shoenig/go-m1cpu v0.1.6 h1:nxdKQNcEB6vzgA2E2bvzKIYRuNj7XNJ4S/aRSwKzFtM=
