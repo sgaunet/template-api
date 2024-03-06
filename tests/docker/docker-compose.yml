@@ -25,7 +25,7 @@ services:
       # volumes:
       #   - ./data-webserver:/data
       environment:
-        DBDSN: postgres://postgres:password@postgres-server:5432/postgres?sslmode=disable
+        - DBDSN=postgres://postgres:password@postgres-server:5432/postgres?sslmode=disable
         # DEBUGLEVEL: info # actually not used
       depends_on:
         - postgres-server
