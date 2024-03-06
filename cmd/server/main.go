@@ -9,7 +9,7 @@ import (
 	"syscall"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/sgaunet/dsn"
+	"github.com/sgaunet/dsn/v2/pkg/dsn"
 	"github.com/sgaunet/template-api/api/authors"
 	"github.com/sgaunet/template-api/internal/database"
 	"github.com/sgaunet/template-api/pkg/config"
@@ -27,6 +27,7 @@ func printVersion() {
 func main() {
 	var (
 		err         error
+		cfg         config.Config
 		cfgFile     string
 		versionFlag bool
 	)
@@ -39,20 +40,27 @@ func main() {
 		os.Exit(0)
 	}
 
-	cfg, err := config.LoadConfigFromFileOrEnvVar(cfgFile)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error reading YAML file: %s\n", err)
-		os.Exit(1)
+	if cfgFile == "" {
+		cfg = config.LoadConfigFromEnvVar()
+	} else {
+		cfg, err = config.LoadConfigFromFile(cfgFile)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error reading YAML file: %s\n", err)
+			os.Exit(1)
+		}
 	}
+
 	if !cfg.IsValid() {
 		fmt.Fprintf(os.Stderr, "Invalid configuration\n")
+		fmt.Fprintf(os.Stderr, "DBDSN: %s\n", cfg.DBDSN)
+		fmt.Fprintf(os.Stderr, "REDISDSN: %s\n", cfg.RedisDSN)
 		os.Exit(1)
 	}
 
 	// init database connection
 	pg, err := database.NewPostgres(cfg.DBDSN)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Invalid configuration\n")
+		fmt.Fprintf(os.Stderr, "connection to database failed: %s\n", err.Error())
 		os.Exit(1)
 	}
 
