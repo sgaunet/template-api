@@ -2,32 +2,39 @@ package config
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/sgaunet/dsn/v2/pkg/dsn"
-	"github.com/spf13/viper"
+	"gopkg.in/yaml.v2"
 )
 
 // Config is the configuration for the application
 type Config struct {
-	DBDSN    string `mapstructure:"dbdsn"`
-	RedisDSN string `mapstructure:"redisdsn"`
+	DBDSN    string `yaml:"DBDSN"`
+	RedisDSN string `yaml:"REDISDSN"`
 	// RedisStream     string `mapstructure:"redisstream"`
 }
 
-// LoadConfigFromFileOrEnvVar loads the configuration from a file or environment variable
-func LoadConfigFromFileOrEnvVar(cfgFilePath string) (*Config, error) {
-	var C Config
-	viper.SetConfigFile(cfgFilePath)
-	viper.AutomaticEnv()
-	err := viper.ReadInConfig() // Find and read the config file
-	if err != nil {             // Handle errors reading the config file
-		fmt.Printf("warning: configuration file not found (will be loaded from environment variables): %s\n", err)
-	}
-	err = viper.Unmarshal(&C)
+func LoadConfigFromFile(filename string) (Config, error) {
+	var yamlConfig Config
+	yamlFile, err := os.ReadFile(filename)
 	if err != nil {
-		return &C, fmt.Errorf("unable to decode into struct, %w", err)
+		fmt.Printf("Error reading YAML file: %s\n", err)
+		return yamlConfig, err
 	}
-	return &C, nil
+	err = yaml.Unmarshal(yamlFile, &yamlConfig)
+	if err != nil {
+		fmt.Printf("Error parsing YAML file: %s\n", err)
+		return yamlConfig, err
+	}
+	return yamlConfig, err
+}
+
+func LoadConfigFromEnvVar() Config {
+	var cfg Config
+	cfg.DBDSN = os.Getenv("DBDSN")
+	cfg.RedisDSN = os.Getenv("REDISDSN")
+	return cfg
 }
 
 // IsValid checks if the configuration is valid
