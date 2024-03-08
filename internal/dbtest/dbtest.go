@@ -1,4 +1,4 @@
-package database_test
+package dbtest
 
 import (
 	"log"
@@ -6,15 +6,18 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/sgaunet/template-api/internal/database"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-var postgresqlC testcontainers.Container
-var pgdsn string
+type TestDB struct {
+	postgresqlC testcontainers.Container
+	PgDSN       string
+}
 
-func setup() {
-	// Do something here.
+func NewTestDB(waitDbForBeingReady bool) *TestDB {
+	newpgDB := &TestDB{}
 	ctx := context.Background()
 	var err error
 	// req := testcontainers.ContainerRequest{
@@ -34,24 +37,31 @@ func setup() {
 			"POSTGRES_PASSWORD": "password",
 		},
 	}
-	postgresqlC, err = testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+	newpgDB.postgresqlC, err = testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: req,
 		Started:          true,
 	})
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	endpoint, err := postgresqlC.Endpoint(ctx, "")
+	endpoint, err := newpgDB.postgresqlC.Endpoint(ctx, "")
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	pgdsn = fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", "postgres", "password", endpoint, "postgres")
+	newpgDB.PgDSN = fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", "postgres", "password", endpoint, "postgres")
+	if waitDbForBeingReady {
+		err = database.WaitForDB(ctx, newpgDB.PgDSN)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+	}
+	return newpgDB
 }
 
-func teardown() {
+func (t *TestDB) Teardown() {
 	// Do something here.
 	defer func() {
-		if err := postgresqlC.Terminate(context.Background()); err != nil {
+		if err := t.postgresqlC.Terminate(context.Background()); err != nil {
 			panic(err)
 		}
 	}()

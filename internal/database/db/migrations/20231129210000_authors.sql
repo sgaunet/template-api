@@ -7,5 +7,7 @@ CREATE TABLE authors
     bio  TEXT NOT NULL
 );
 
+CREATE INDEX ON authors (id);
+
 -- migrate:down
 DROP TABLE IF EXISTS authors;

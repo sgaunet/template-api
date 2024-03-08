@@ -7,7 +7,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/sgaunet/template-api/api/authors"
+	"github.com/sgaunet/template-api/pkg/authors/handlers"
+	authors "github.com/sgaunet/template-api/pkg/authors/service"
 	// "github.com/go-redis/redis/v7"
 )
 
@@ -15,18 +16,21 @@ const listenAddr string = ":3000"
 
 // WebServer is the web server
 type WebServer struct {
-	srv    *http.Server
-	router *chi.Mux
+	srv      *http.Server
+	router   *chi.Mux
+	handlers *handlers.AuthorHandlers
 }
 
 // NewWebServer creates a new web server
-func NewWebServer(authorsSvc *authors.Service) (*WebServer, error) {
-	w := &WebServer{}
+func NewWebServer(authorsSvc *authors.AuthorService) (*WebServer, error) {
+	w := &WebServer{
+		handlers: handlers.NewAuthorsHandlers(authorsSvc),
+	}
 	w.router = chi.NewRouter()
 	w.router.Use(middleware.RequestID)
 	w.router.Use(middleware.Logger)
 	w.router.Use(middleware.Recoverer)
-	w.initRoutes(authorsSvc)
+	w.initRoutes()
 
 	w.srv = &http.Server{
 		Addr:              listenAddr,
