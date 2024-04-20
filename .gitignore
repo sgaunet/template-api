@@ -1,8 +1,7 @@
-db.go
-models.go
-queries.sql.go
-querier.go
 /webserver
 /tests/log
-mock_test.go
 dist
+/internal/repository/queries-*go
+/internal/repository/db.go
+/internal/repository/models.go
+/internal/repository/querier.go

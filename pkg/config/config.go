@@ -15,6 +15,7 @@ type Config struct {
 	// RedisStream     string `mapstructure:"redisstream"`
 }
 
+// LoadConfigFromFile loads the configuration from a file
 func LoadConfigFromFile(filename string) (Config, error) {
 	var yamlConfig Config
 	yamlFile, err := os.ReadFile(filename)
@@ -30,6 +31,7 @@ func LoadConfigFromFile(filename string) (Config, error) {
 	return yamlConfig, err
 }
 
+// LoadConfigFromEnvVar loads the configuration from environment variables
 func LoadConfigFromEnvVar() Config {
 	var cfg Config
 	cfg.DBDSN = os.Getenv("DBDSN")

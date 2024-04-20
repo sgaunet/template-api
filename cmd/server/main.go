@@ -7,11 +7,13 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/sgaunet/dsn/v2/pkg/dsn"
-	"github.com/sgaunet/template-api/api/authors"
 	"github.com/sgaunet/template-api/internal/database"
+	"github.com/sgaunet/template-api/internal/repository"
+	"github.com/sgaunet/template-api/pkg/authors/service"
 	"github.com/sgaunet/template-api/pkg/config"
 	"github.com/sgaunet/template-api/pkg/webserver"
 )
@@ -40,6 +42,7 @@ func main() {
 		os.Exit(0)
 	}
 
+	// load configuration
 	if cfgFile == "" {
 		cfg = config.LoadConfigFromEnvVar()
 	} else {
@@ -57,14 +60,22 @@ func main() {
 		os.Exit(1)
 	}
 
+	// wait for database
+	waitCtx, cancel := context.WithDeadline(context.Background(), time.Now().Add(30*time.Second))
+	err = database.WaitForDB(waitCtx, cfg.DBDSN)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error waiting for database: %s\n", err)
+		os.Exit(1)
+	}
+	cancel()
+
 	// init database connection
 	pg, err := database.NewPostgres(cfg.DBDSN)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "connection to database failed: %s\n", err.Error())
 		os.Exit(1)
 	}
-
-	// init database
+	// init database (create tables, etc...)
 	err = pg.InitDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error initializing database: %s\n", err)
@@ -79,8 +90,10 @@ func main() {
 	// 	os.Exit(1)
 	// }
 
-	queries := database.New(pg.GetDB())
-	authorSvc := authors.NewService(queries)
+	// init services
+	authorsQueries := repository.New(pg.GetDB())
+	authorSvc := service.NewService(authorsQueries)
+
 	// init webserver
 	w, err := webserver.NewWebServer(authorSvc)
 	if err != nil {

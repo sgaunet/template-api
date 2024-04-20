@@ -1,11 +1,22 @@
 version: "2"
 sql:
 - schema: "internal/database/db/migrations/"
-  queries: "internal/database/queries.sql"
+  queries: "queries/"
   engine: "postgresql"
   gen:
     go:
-      package: "database"
-      out: "internal/database"
+      package: "repository"
+      out: "internal/repository"
+      emit_db_tags: true
       emit_json_tags: true
+      emit_prepared_queries: false
       emit_interface: true
+      emit_exact_table_names: false
+      emit_empty_slices: true
+      overrides:
+        - column: authors.ID
+          go_struct_tag: 'json:"id" validate:"required"'
+        - column: authors.Name
+          go_struct_tag: 'json:"name" validate:"min=5,max=20"'
+        - column: authors.Bio
+          go_struct_tag: 'json:"bio" validate:"min=5,max=100"'
