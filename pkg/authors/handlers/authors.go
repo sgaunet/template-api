@@ -14,6 +14,8 @@ import (
 	authorsservice "github.com/sgaunet/template-api/pkg/authors/service"
 )
 
+//go:generate moq -out mock_test.go -pkg handlers_test ../../../internal/repository Querier
+
 // AuthorHandlers is the Authors Handlers
 type AuthorHandlers struct {
 	authorService *authorsservice.AuthorService
