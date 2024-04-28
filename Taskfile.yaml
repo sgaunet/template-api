@@ -39,11 +39,18 @@ tasks:
       - sqlc generate
       - go generate ./... # for mock
 
+  unit-tests:
+    desc: "Run unit tests"
+    cmds:
+      - go generate ./...
+      - go test -v -cover ./...
+
   tests:
     desc: "Run tests"
     dir: tests
     cmds:
       - task: run-local
+      - sleep 1
       - venom run testsuite.yml --output-dir="log" --stop-on-failure
 
   snapshot:
