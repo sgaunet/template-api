@@ -1,4 +1,6 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/sgaunet/template-api)](https://goreportcard.com/report/github.com/sgaunet/template-api)
+![GitHub Downloads](https://img.shields.io/github/downloads/sgaunet/template-api/total)
+![GitHub Release](https://img.shields.io/github/v/release/sgaunet/template-api)
 
 # template-api
 
