@@ -12,6 +12,12 @@ tasks:
     cmds:
       - task -a
 
+  linter:
+    desc: "Run linters"
+    cmds:
+      - go vet ./...
+      - golangci-lint run --config=.github/linters/.golangci.yml
+  
   run-local:
     desc: "Run the application locally"
     dir: tests/docker
