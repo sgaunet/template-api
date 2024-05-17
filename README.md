@@ -10,7 +10,7 @@ template-api is an API REST template project.
 # install gonew
 go install golang.org/x/tools/cmd/gonew@latest
 # use gonew to create your project based on this template
-gonew github.com/sgaunet/template-cli gitplatform.com/username/awesome_new_project
+gonew github.com/sgaunet/template-api gitplatform.com/username/awesome_new_project
 cd awesome_new_project
 git init
 git add .
