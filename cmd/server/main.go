@@ -18,6 +18,8 @@ import (
 	"github.com/sgaunet/template-api/pkg/webserver"
 )
 
+//go:generate sqlc generate
+
 const channelSignalSize = 5
 
 var version string = "development"
