@@ -1,8 +1,10 @@
+# template-api
+
 [![Go Report Card](https://goreportcard.com/badge/github.com/sgaunet/template-api)](https://goreportcard.com/report/github.com/sgaunet/template-api)
 ![GitHub Downloads](https://img.shields.io/github/downloads/sgaunet/template-api/total)
 ![GitHub Release](https://img.shields.io/github/v/release/sgaunet/template-api)
+![Test Coverage](https://raw.githubusercontent.com/wiki/sgaunet/template-api/coverage-badge.svg)
 
-# template-api
 
 template-api is an API REST template project.
 
