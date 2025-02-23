@@ -6,7 +6,7 @@ import (
 	"github.com/sgaunet/template-api/internal/repository"
 )
 
-//go:generate moq -out mock_test.go -pkg service_test ../../../internal/repository Querier
+//go:generate go tool github.com/matryer/moq -out mock_test.go -pkg service_test ../../../internal/repository Querier
 
 // AuthorService is the Authors Service Layer
 type AuthorService struct {
