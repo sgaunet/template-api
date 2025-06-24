@@ -1,3 +1,4 @@
+// Command server is the entry point for the API server.
 package main
 
 import (
@@ -20,18 +21,26 @@ import (
 
 //go:generate go tool github.com/sqlc-dev/sqlc/cmd/sqlc generate -f ../../sqlc.yaml
 
-const channelSignalSize = 5
+const (
+	channelSignalSize = 5
+	waitForDB         = 30 * time.Second
+)
 
-var version string = "development"
+var version = "development"
 
 func printVersion() {
 	fmt.Printf("%s\n", version)
 }
 
 func main() {
+	if err := run(); err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
 	var (
-		err         error
-		cfg         config.Config
 		cfgFile     string
 		versionFlag bool
 	)
@@ -45,52 +54,21 @@ func main() {
 	}
 
 	// load configuration
-	if cfgFile == "" {
-		cfg = config.LoadConfigFromEnvVar()
-	} else {
-		cfg, err = config.LoadConfigFromFile(cfgFile)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error reading YAML file: %s\n", err)
-			os.Exit(1)
+	cfg, err := loadConfiguration(cfgFile)
+	if err != nil {
+		return fmt.Errorf("configuration error: %w", err)
+	}
+
+	// init database
+	pg, err := initDB(cfg)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err := pg.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "error closing database: %v\n", err)
 		}
-	}
-
-	if !cfg.IsValid() {
-		fmt.Fprintf(os.Stderr, "Invalid configuration\n")
-		fmt.Fprintf(os.Stderr, "DBDSN: %s\n", cfg.DBDSN)
-		fmt.Fprintf(os.Stderr, "REDISDSN: %s\n", cfg.RedisDSN)
-		os.Exit(1)
-	}
-
-	// wait for database
-	waitCtx, cancel := context.WithDeadline(context.Background(), time.Now().Add(30*time.Second))
-	err = database.WaitForDB(waitCtx, cfg.DBDSN)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error waiting for database: %s\n", err)
-		os.Exit(1)
-	}
-	cancel()
-
-	// init database connection
-	pg, err := database.NewPostgres(cfg.DBDSN)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "connection to database failed: %s\n", err.Error())
-		os.Exit(1)
-	}
-	// init database (create tables, etc...)
-	err = pg.InitDB()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error initializing database: %s\n", err)
-		pg.Close()
-		os.Exit(1)
-	}
-	// init redis connection
-	// _, err = initRedisConnection(cfg.RedisDSN)
-	// if err != nil {
-	// 	fmt.Fprintf(os.Stderr, "Error initializing redis: %s\n", err)
-	// 	pg.Close()
-	// 	os.Exit(1)
-	// }
+	}()
 
 	// init services
 	authorsQueries := repository.New(pg.GetDB())
@@ -99,28 +77,31 @@ func main() {
 	// init webserver
 	w, err := webserver.NewWebServer(authorSvc)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error creating webserver: %s\n", err)
-		os.Exit(1)
+		return fmt.Errorf("error creating webserver: %w", err)
 	}
 
 	// handle graceful shutdown
-	sigs := make(chan os.Signal, channelSignalSize)
+	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
+	serverErr := make(chan error, 1)
 	go func() {
-		err = w.Start()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error starting webserver: %s\n", err.Error())
-			os.Exit(1)
-		}
+		serverErr <- w.Start()
 	}()
 
-	<-sigs
-	err = w.Shutdown(context.TODO())
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error shutting down webserver: %s\n", err.Error())
-		os.Exit(1)
+	select {
+	case err := <-serverErr:
+		if err != nil {
+			return fmt.Errorf("error starting webserver: %w", err)
+		}
+	case <-sigs:
 	}
+
+	if err := w.Shutdown(context.TODO()); err != nil {
+		return fmt.Errorf("error shutting down webserver: %w", err)
+	}
+
+	return nil
 }
 
 //nolint:unused
@@ -128,12 +109,57 @@ func initRedisConnection(redisdsn string) (*redis.Client, error) {
 	var err error
 	d, err := dsn.New(redisdsn)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not parse redis dsn: %w", err)
 	}
 	addr := fmt.Sprintf("%s:%s", d.GetHost(), d.GetPort("6379"))
 	redisClient := redis.NewClient(&redis.Options{
 		Addr: addr,
 	})
 	_, err = redisClient.Ping(context.TODO()).Result()
-	return redisClient, err
+	if err != nil {
+		return nil, fmt.Errorf("could not ping redis: %w", err)
+	}
+	return redisClient, nil
+}
+
+func initDB(cfg config.Config) (*database.Postgres, error) {
+	// wait for database
+	waitCtx, cancel := context.WithDeadline(context.Background(), time.Now().Add(waitForDB))
+	defer cancel()
+	if err := database.WaitForDB(waitCtx, cfg.DBDSN); err != nil {
+		return nil, fmt.Errorf("error waiting for database: %w", err)
+	}
+	// init database connection
+	pg, err := database.NewPostgres(cfg.DBDSN)
+	if err != nil {
+		return nil, fmt.Errorf("connection to database failed: %w", err)
+	}
+	// init database (create tables, etc...)
+	if err = pg.InitDB(); err != nil {
+		if errClose := pg.Close(); errClose != nil {
+			fmt.Fprintf(os.Stderr, "Error closing database during initDB failure: %s\n", errClose)
+		}
+		return nil, fmt.Errorf("error initializing database: %w", err)
+	}
+	return pg, nil
+}
+
+func loadConfiguration(cfgFile string) (config.Config, error) {
+	var (
+		err error
+		cfg config.Config
+	)
+	if cfgFile == "" {
+		cfg = config.LoadConfigFromEnvVar()
+	} else {
+		cfg, err = config.LoadConfigFromFile(cfgFile)
+		if err != nil {
+			return config.Config{}, fmt.Errorf("error reading YAML file: %w", err)
+		}
+	}
+
+		if err := cfg.Validate(); err != nil {
+		return config.Config{}, fmt.Errorf("invalid configuration: %w", err)
+	}
+	return cfg, nil
 }

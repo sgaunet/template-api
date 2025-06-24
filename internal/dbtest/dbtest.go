@@ -1,3 +1,4 @@
+// Package dbtest provides test helpers for database integration tests.
 package dbtest
 
 import (

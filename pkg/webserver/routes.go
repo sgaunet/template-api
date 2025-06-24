@@ -15,7 +15,7 @@ func (w *WebServer) initRoutes() {
 	w.router.Get("/", HealthCheck)
 }
 
-// HealthCheck is the health check endpoint
+// HealthCheck is the health check endpoint.
 func HealthCheck(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write([]byte("OK"))

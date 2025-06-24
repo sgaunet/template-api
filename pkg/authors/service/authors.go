@@ -1,52 +1,60 @@
+// Package service implements the business logic for the author service.
 package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/sgaunet/template-api/internal/repository"
 )
 
 //go:generate go tool github.com/matryer/moq -out mock_test.go -pkg service_test ../../../internal/repository Querier
 
-// AuthorService is the Authors Service Layer
+// AuthorService is the Authors Service Layer.
 type AuthorService struct {
 	queries repository.Querier
 }
 
-// NewService creates a new authors service
+// NewService creates a new authors service.
 func NewService(queries repository.Querier) *AuthorService {
 	return &AuthorService{queries: queries}
 }
 
-// Create creates a new author
+// Create creates a new author.
 func (s *AuthorService) Create(ctx context.Context, name string, bio string) (repository.Author, error) {
 	author, err := s.queries.CreateAuthor(ctx, repository.CreateAuthorParams{
 		Name: name,
 		Bio:  bio,
 	})
-	return author, err
+	if err != nil {
+		return author, fmt.Errorf("could not create author: %w", err)
+	}
+	return author, nil
 }
 
-// Get returns an author by id
+// Get returns an author by id.
 func (s *AuthorService) Get(ctx context.Context, authorID int64) (*repository.Author, error) {
 	// Get author
 	author, err := s.queries.GetAuthor(ctx, authorID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not get author: %w", err)
 	}
 	return &author, nil
 }
 
-// Delete deletes an author by id
+// Delete deletes an author by id.
 func (s *AuthorService) Delete(ctx context.Context, authorID int64) error {
-	return s.queries.DeleteAuthor(ctx, authorID)
+	if err := s.queries.DeleteAuthor(ctx, authorID); err != nil {
+		return fmt.Errorf("could not delete author: %w", err)
+	}
+	return nil
 }
 
-// List returns all authors
+// List returns all authors.
 func (s *AuthorService) List(ctx context.Context) ([]repository.Author, error) {
-	authors, err := s.queries.ListAuthors(context.Background())
+	authors, err := s.queries.ListAuthors(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not list authors: %w", err)
 	}
 	return authors, nil
 }

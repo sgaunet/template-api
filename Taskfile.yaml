@@ -16,7 +16,7 @@ tasks:
     desc: "Run linters"
     cmds:
       - go vet ./...
-      - golangci-lint run --config=.github/linters/.golangci.yml
+      - golangci-lint run
   
   run-local:
     desc: "Run the application locally"

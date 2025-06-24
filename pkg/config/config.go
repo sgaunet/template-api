@@ -1,6 +1,8 @@
+// Package config manages the application configuration.
 package config
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -8,30 +10,29 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// Config is the configuration for the application
+// Config is the configuration for the application.
 type Config struct {
-	DBDSN    string `yaml:"DBDSN"`
-	RedisDSN string `yaml:"REDISDSN"`
+	DBDSN    string `yaml:"dbdsn"`
+	RedisDSN string `yaml:"redisdsn"`
 	// RedisStream     string `mapstructure:"redisstream"`
 }
 
-// LoadConfigFromFile loads the configuration from a file
+// LoadConfigFromFile loads the configuration from a file.
 func LoadConfigFromFile(filename string) (Config, error) {
 	var yamlConfig Config
+	//nolint:gosec
 	yamlFile, err := os.ReadFile(filename)
 	if err != nil {
-		fmt.Printf("Error reading YAML file: %s\n", err)
-		return yamlConfig, err
+		return yamlConfig, fmt.Errorf("could not read yaml file: %w", err)
 	}
 	err = yaml.Unmarshal(yamlFile, &yamlConfig)
 	if err != nil {
-		fmt.Printf("Error parsing YAML file: %s\n", err)
-		return yamlConfig, err
+		return yamlConfig, fmt.Errorf("could not parse yaml file: %w", err)
 	}
-	return yamlConfig, err
+	return yamlConfig, nil
 }
 
-// LoadConfigFromEnvVar loads the configuration from environment variables
+// LoadConfigFromEnvVar loads the configuration from environment variables.
 func LoadConfigFromEnvVar() Config {
 	var cfg Config
 	cfg.DBDSN = os.Getenv("DBDSN")
@@ -39,11 +40,16 @@ func LoadConfigFromEnvVar() Config {
 	return cfg
 }
 
-// IsValid checks if the configuration is valid
-func (c *Config) IsValid() bool {
+// ErrInvalidConfig is returned when the configuration is invalid.
+var ErrInvalidConfig = errors.New("invalid configuration")
+
+// Validate checks if the configuration is valid.
+func (c *Config) Validate() error {
 	if c.DBDSN == "" {
-		return false
+		return fmt.Errorf("%w: DBDSN is empty", ErrInvalidConfig)
 	}
-	_, err := dsn.New(c.DBDSN)
-	return err == nil
+	if _, err := dsn.New(c.DBDSN); err != nil {
+		return fmt.Errorf("%w: invalid DBDSN: %w", ErrInvalidConfig, err)
+	}
+	return nil
 }

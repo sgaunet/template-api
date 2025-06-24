@@ -1,7 +1,7 @@
+// Package handlers provides the HTTP handlers for the authors API.
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -16,19 +16,19 @@ import (
 
 //go:generate go tool github.com/matryer/moq -out mock_test.go -pkg handlers_test ../../../internal/repository Querier
 
-// AuthorHandlers is the Authors Handlers
+// AuthorHandlers is the Authors Handlers.
 type AuthorHandlers struct {
 	authorService *authorsservice.AuthorService
 }
 
-// NewAuthorsHandlers creates a new authors handlers
+// NewAuthorsHandlers creates a new authors handlers.
 func NewAuthorsHandlers(authrSvc *authorsservice.AuthorService) *AuthorHandlers {
 	return &AuthorHandlers{
 		authorService: authrSvc,
 	}
 }
 
-// Create creates a new author
+// Create creates a new author.
 func (a *AuthorHandlers) Create(w http.ResponseWriter, r *http.Request) {
 	// Parse body request
 	payload := domain.AuthorRequestBody{}
@@ -37,7 +37,12 @@ func (a *AuthorHandlers) Create(w http.ResponseWriter, r *http.Request) {
 		httperror.WriteBadRequestError(w, err)
 		return
 	}
-	defer r.Body.Close()
+	defer func() {
+		err := r.Body.Close()
+		if err != nil {
+			httperror.WriteStatusInternalServerError(w, err)
+		}
+	}()
 	err = json.Unmarshal(body, &payload)
 	if err != nil {
 		httperror.WriteBadRequestError(w, err)
@@ -52,7 +57,7 @@ func (a *AuthorHandlers) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	author, err := a.authorService.Create(context.Background(), payload.Name, payload.Bio)
+	author, err := a.authorService.Create(r.Context(), payload.Name, payload.Bio)
 	if err != nil {
 		httperror.WriteBadRequestError(w, err)
 		return
@@ -67,9 +72,9 @@ func (a *AuthorHandlers) Create(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// List returns all authors
+// List returns all authors.
 func (a *AuthorHandlers) List(w http.ResponseWriter, r *http.Request) {
-	authors, err := a.authorService.List(context.Background())
+	authors, err := a.authorService.List(r.Context())
 	if err != nil {
 		httperror.WriteBadRequestError(w, err)
 		return
@@ -82,7 +87,7 @@ func (a *AuthorHandlers) List(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Delete deletes an author by id
+// Delete deletes an author by id.
 func (a *AuthorHandlers) Delete(w http.ResponseWriter, r *http.Request) {
 	uuidParam := chi.URLParam(r, "uuid")
 	// Convert to int64

@@ -13,7 +13,7 @@ func TestLoadConfigFromEnvVar(t *testing.T) {
 		t.Errorf("Error setting environment variable: %v", err)
 	}
 	cfg := config.LoadConfigFromEnvVar()
-	if !cfg.IsValid() {
-		t.Errorf("Invalid configuration")
+	if err := cfg.Validate(); err != nil {
+		t.Errorf("Invalid configuration: %v", err)
 	}
 }
