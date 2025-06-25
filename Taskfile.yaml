@@ -15,7 +15,7 @@ tasks:
   linter:
     desc: "Run linters"
     cmds:
-      - go vet ./...
+      - go generate ./...
       - golangci-lint run
   
   run-local:
@@ -42,8 +42,7 @@ tasks:
   sqlc:
     desc: "sqlc generate"
     cmds:
-      - sqlc generate
-      - go generate ./... # for mock
+      - go generate ./...
 
   unit-tests:
     desc: "Run unit tests"
