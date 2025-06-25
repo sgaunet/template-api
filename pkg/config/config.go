@@ -13,8 +13,8 @@ import (
 
 // Config is the configuration for the application.
 type Config struct {
-	DBDSN    string `yaml:"dbdsn" env:"DB_DSN"`
-	RedisDSN string `yaml:"redisdsn" env:"REDIS_DSN"`
+	DBDSN    string `env:"DB_DSN"    yaml:"dbdsn"`
+	RedisDSN string `env:"REDIS_DSN" yaml:"redisdsn"`
 	// RedisStream     string `mapstructure:"redisstream"`
 }
 
@@ -37,7 +37,7 @@ func Load(filename string) (Config, error) {
 
 	// Parse environment variables and override YAML values
 	if err := env.Parse(&cfg); err != nil {
-		return cfg, err
+		return cfg, fmt.Errorf("error parsing environment variables: %w", err)
 	}
 
 	return cfg, nil
