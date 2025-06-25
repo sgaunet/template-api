@@ -149,13 +149,9 @@ func loadConfiguration(cfgFile string) (config.Config, error) {
 		err error
 		cfg config.Config
 	)
-	if cfgFile == "" {
-		cfg = config.LoadConfigFromEnvVar()
-	} else {
-		cfg, err = config.LoadConfigFromFile(cfgFile)
-		if err != nil {
-			return config.Config{}, fmt.Errorf("error reading YAML file: %w", err)
-		}
+	cfg, err = config.Load(cfgFile)
+	if err != nil {
+		return config.Config{}, fmt.Errorf("error loading configuration: %w", err)
 	}
 
 		if err := cfg.Validate(); err != nil {
