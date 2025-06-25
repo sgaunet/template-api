@@ -1,7 +1,7 @@
 # https://taskfile.dev
 version: '3'
 vars:
-  IMG: sgaunet/template-api:latest
+  IMG: ghcr.io/sgaunet/template-api:latest
 
 includes:
   dev: ./Taskfile_dev.yml
