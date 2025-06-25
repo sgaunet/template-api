@@ -41,8 +41,7 @@ tasks:
   sqlc:
     desc: "sqlc generate"
     cmds:
-      - sqlc generate
-      - go generate ./... # for mock
+      - go generate ./...
 
   unit-tests:
     desc: "Run unit tests"
