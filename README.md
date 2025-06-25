@@ -4,6 +4,7 @@
 ![GitHub Downloads](https://img.shields.io/github/downloads/sgaunet/template-api/total)
 ![GitHub Release](https://img.shields.io/github/v/release/sgaunet/template-api)
 ![Test Coverage](https://raw.githubusercontent.com/wiki/sgaunet/template-api/coverage-badge.svg)
+[![License](https://img.shields.io/github/license/sgaunet/template-api.svg)](LICENSE)
 [![linter](https://github.com/sgaunet/template-api/actions/workflows/linter.yml/badge.svg)](https://github.com/sgaunet/template-api/actions/workflows/linter.yml)
 [![coverage](https://github.com/sgaunet/template-api/actions/workflows/coverage.yml/badge.svg)](https://github.com/sgaunet/template-api/actions/workflows/coverage.yml)
 [![snapshot](https://github.com/sgaunet/template-api/actions/workflows/snapshot.yml/badge.svg)](https://github.com/sgaunet/template-api/actions/workflows/snapshot.yml)
