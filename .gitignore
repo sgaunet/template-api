@@ -6,3 +6,4 @@ dist
 /internal/repository/models.go
 /internal/repository/querier.go
 mock_test.go
+/.devbox

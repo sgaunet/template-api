@@ -15,7 +15,6 @@ tasks:
   linter:
     desc: "Run linters"
     cmds:
-      - go vet ./...
       - golangci-lint run
   
   run-local:
