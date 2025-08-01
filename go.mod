@@ -6,7 +6,7 @@ require (
 	github.com/amacneil/dbmate/v2 v2.27.0
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/go-chi/chi/v5 v5.2.2
-	github.com/go-playground/validator/v10 v10.26.0
+	github.com/go-playground/validator/v10 v10.27.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/sgaunet/dsn/v2 v2.3.0
 	github.com/stretchr/testify v1.10.0
