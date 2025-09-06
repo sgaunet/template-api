@@ -1,9 +1,8 @@
 /webserver
 /tests/log
-dist
+/dist
 /internal/repository/queries-*go
 /internal/repository/db.go
 /internal/repository/models.go
 /internal/repository/querier.go
 mock_test.go
-/.devbox
