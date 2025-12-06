@@ -19,3 +19,4 @@ linters:
     - exhaustruct
     - noinlineerr
     - noctx # To remove
+    - ireturn # Allow returning interfaces from constructors (common Go pattern)

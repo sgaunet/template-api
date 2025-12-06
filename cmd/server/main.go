@@ -14,7 +14,7 @@ import (
 	"github.com/sgaunet/dsn/v2/pkg/dsn"
 	"github.com/sgaunet/template-api/internal/database"
 	"github.com/sgaunet/template-api/internal/repository"
-	"github.com/sgaunet/template-api/pkg/authors/service"
+	"github.com/sgaunet/template-api/pkg/authors"
 	"github.com/sgaunet/template-api/pkg/config"
 	"github.com/sgaunet/template-api/pkg/webserver"
 )
@@ -71,11 +71,15 @@ func run() error {
 	}()
 
 	// init services
-	authorsQueries := repository.New(pg.GetDB())
-	authorSvc := service.NewService(authorsQueries)
+	queries := repository.New(pg.GetDB())
+
+	// Authors domain
+	authorsRepo := authors.NewRepository(queries)
+	authorsService := authors.NewService(authorsRepo)
+	authorsHandler := authors.NewHandler(authorsService)
 
 	// init webserver
-	w, err := webserver.NewWebServer(authorSvc)
+	w, err := webserver.NewWebServer(authorsHandler)
 	if err != nil {
 		return fmt.Errorf("error creating webserver: %w", err)
 	}
