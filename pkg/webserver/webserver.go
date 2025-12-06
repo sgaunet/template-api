@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/sgaunet/template-api/pkg/authors/handlers"
-	authors "github.com/sgaunet/template-api/pkg/authors/service"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/sgaunet/template-api/internal/middleware"
+	"github.com/sgaunet/template-api/pkg/authors"
 	// "github.com/go-redis/redis/v7".
 )
 
@@ -22,20 +22,24 @@ const (
 
 // WebServer is the web server.
 type WebServer struct {
-	srv      *http.Server
-	router   *chi.Mux
-	handlers *handlers.AuthorHandlers
+	srv            *http.Server
+	router         *chi.Mux
+	authorsHandler *authors.Handler
 }
 
 // NewWebServer creates a new web server.
-func NewWebServer(authorsSvc *authors.AuthorService) (*WebServer, error) {
+func NewWebServer(authorsHandler *authors.Handler) (*WebServer, error) {
 	w := &WebServer{
-		handlers: handlers.NewAuthorsHandlers(authorsSvc),
+		authorsHandler: authorsHandler,
 	}
 	w.router = chi.NewRouter()
-	w.router.Use(middleware.RequestID)
-	w.router.Use(middleware.Logger)
-	w.router.Use(middleware.Recoverer)
+
+	// Global middleware
+	w.router.Use(chimiddleware.RequestID)
+	w.router.Use(chimiddleware.Logger)
+	w.router.Use(middleware.Recovery)
+	w.router.Use(middleware.JSONContentType)
+
 	w.initRoutes()
 
 	w.srv = &http.Server{
