@@ -1,4 +1,3 @@
-// Package apperror provides structured error handling for the application.
 package apperror
 
 import (
@@ -39,7 +38,10 @@ func WriteError(w http.ResponseWriter, err error) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		// Failed to encode error response, nothing we can do
+		return
+	}
 }
 
 func errorCodeToHTTPStatus(code ErrorCode) int {
@@ -50,6 +52,8 @@ func errorCodeToHTTPStatus(code ErrorCode) int {
 		return http.StatusNotFound
 	case ErrCodeConflict:
 		return http.StatusConflict
+	case ErrCodeInternal:
+		return http.StatusInternalServerError
 	case ErrCodeUnauthorized:
 		return http.StatusUnauthorized
 	case ErrCodeForbidden:

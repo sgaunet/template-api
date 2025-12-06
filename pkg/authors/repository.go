@@ -1,9 +1,9 @@
-// Package authors provides the authors domain logic.
 package authors
 
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/sgaunet/template-api/internal/apperror"
 	"github.com/sgaunet/template-api/internal/repository"
@@ -46,7 +46,7 @@ func (r *repositoryImpl) Create(ctx context.Context, author *Author) (*Author, e
 func (r *repositoryImpl) GetByID(ctx context.Context, id int64) (*Author, error) {
 	dbAuthor, err := r.queries.GetAuthor(ctx, id)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, apperror.NewNotFoundError("Author not found")
 		}
 		return nil, apperror.NewInternalError(err)
@@ -79,7 +79,7 @@ func (r *repositoryImpl) List(ctx context.Context) ([]*Author, error) {
 
 func (r *repositoryImpl) Delete(ctx context.Context, id int64) error {
 	if err := r.queries.DeleteAuthor(ctx, id); err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return apperror.NewNotFoundError("Author not found")
 		}
 		return apperror.NewInternalError(err)

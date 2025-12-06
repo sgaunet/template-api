@@ -1,4 +1,3 @@
-// Package apperror provides structured error handling for the application.
 package apperror
 
 import (
@@ -9,6 +8,7 @@ import (
 // ErrorCode represents application error codes.
 type ErrorCode string
 
+// Error codes for application errors.
 const (
 	ErrCodeValidation   ErrorCode = "VALIDATION_ERROR"
 	ErrCodeNotFound     ErrorCode = "NOT_FOUND"
@@ -25,17 +25,6 @@ type AppError struct {
 	Message string            `json:"message"`
 	Details map[string]string `json:"details,omitempty"`
 	Err     error             `json:"-"`
-}
-
-func (e *AppError) Error() string {
-	if e.Err != nil {
-		return fmt.Sprintf("%s: %s: %v", e.Code, e.Message, e.Err)
-	}
-	return fmt.Sprintf("%s: %s", e.Code, e.Message)
-}
-
-func (e *AppError) Unwrap() error {
-	return e.Err
 }
 
 // NewValidationError creates a new validation error.
@@ -78,6 +67,17 @@ func NewConflictError(message string) *AppError {
 		Code:    ErrCodeConflict,
 		Message: message,
 	}
+}
+
+func (e *AppError) Error() string {
+	if e.Err != nil {
+		return fmt.Sprintf("%s: %s: %v", e.Code, e.Message, e.Err)
+	}
+	return fmt.Sprintf("%s: %s", e.Code, e.Message)
+}
+
+func (e *AppError) Unwrap() error {
+	return e.Err
 }
 
 // IsValidationError checks if error is a validation error.

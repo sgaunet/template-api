@@ -1,4 +1,3 @@
-// Package authors provides the authors domain logic.
 package authors
 
 import (
@@ -28,7 +27,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		apperror.WriteError(w, apperror.NewBadRequestError("Invalid request body"))
 		return
 	}
-	defer r.Body.Close()
+	defer func() { _ = r.Body.Close() }()
 
 	author, err := h.service.Create(r.Context(), &req)
 	if err != nil {
@@ -37,7 +36,10 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(author.ToResponse())
+	if err := json.NewEncoder(w).Encode(author.ToResponse()); err != nil {
+		// Response already written, can't send error response
+		return
+	}
 }
 
 // List handles GET /authors.
@@ -54,7 +56,10 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(responses)
+	if err := json.NewEncoder(w).Encode(responses); err != nil {
+		// Response already written, can't send error response
+		return
+	}
 }
 
 // Delete handles DELETE /authors/{uuid}.

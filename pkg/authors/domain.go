@@ -1,8 +1,7 @@
-// Package authors provides the authors domain logic.
 package authors
 
 import (
-	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/sgaunet/template-api/internal/apperror"
@@ -18,6 +17,7 @@ type Author struct {
 // AuthorName value object with validation.
 type AuthorName string
 
+// Name length constraints for validation.
 const (
 	MinNameLength = 5
 	MaxNameLength = 20
@@ -32,8 +32,8 @@ func NewAuthorName(name string) (AuthorName, error) {
 			"Author name too short",
 			map[string]string{
 				"field": "name",
-				"min":   fmt.Sprintf("%d", MinNameLength),
-				"value": fmt.Sprintf("%d", len(trimmed)),
+				"min":   strconv.Itoa(MinNameLength),
+				"value": strconv.Itoa(len(trimmed)),
 			},
 		)
 	}
@@ -43,8 +43,8 @@ func NewAuthorName(name string) (AuthorName, error) {
 			"Author name too long",
 			map[string]string{
 				"field": "name",
-				"max":   fmt.Sprintf("%d", MaxNameLength),
-				"value": fmt.Sprintf("%d", len(trimmed)),
+				"max":   strconv.Itoa(MaxNameLength),
+				"value": strconv.Itoa(len(trimmed)),
 			},
 		)
 	}
@@ -59,6 +59,7 @@ func (n AuthorName) String() string {
 // AuthorBio value object.
 type AuthorBio string
 
+// MaxBioLength is the maximum length for author bio.
 const MaxBioLength = 500
 
 // NewAuthorBio creates and validates an author bio.
@@ -70,8 +71,8 @@ func NewAuthorBio(bio string) (AuthorBio, error) {
 			"Author bio too long",
 			map[string]string{
 				"field": "bio",
-				"max":   fmt.Sprintf("%d", MaxBioLength),
-				"value": fmt.Sprintf("%d", len(trimmed)),
+				"max":   strconv.Itoa(MaxBioLength),
+				"value": strconv.Itoa(len(trimmed)),
 			},
 		)
 	}

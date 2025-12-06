@@ -1,13 +1,15 @@
-// Package middleware provides HTTP middleware for the application.
 package middleware
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"runtime/debug"
 
 	"github.com/sgaunet/template-api/internal/apperror"
 )
+
+var errPanic = errors.New("panic recovered")
 
 // Recovery recovers from panics and returns structured error.
 func Recovery(next http.Handler) http.Handler {
@@ -19,7 +21,7 @@ func Recovery(next http.Handler) http.Handler {
 
 				// Return internal error
 				apperror.WriteError(w, apperror.NewInternalError(
-					fmt.Errorf("panic: %v", err),
+					fmt.Errorf("%w: %v", errPanic, err),
 				))
 			}
 		}()
