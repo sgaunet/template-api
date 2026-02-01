@@ -5,7 +5,7 @@ go 1.24.0
 require (
 	github.com/amacneil/dbmate/v2 v2.28.0
 	github.com/caarlos0/env/v11 v11.3.1
-	github.com/go-chi/chi/v5 v5.2.3
+	github.com/go-chi/chi/v5 v5.2.4
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/sgaunet/dsn/v2 v2.3.0
 	github.com/stretchr/testify v1.11.1
