@@ -1,4 +1,4 @@
-FROM alpine:3.23.2 AS builder
+FROM alpine:3.23.3 AS builder
 RUN apk add --no-cache ca-certificates
 
 FROM scratch
