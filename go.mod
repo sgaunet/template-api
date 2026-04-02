@@ -1,6 +1,6 @@
 module github.com/sgaunet/template-api
 
-go 1.25.0
+go 1.25
 
 require (
 	github.com/amacneil/dbmate/v2 v2.32.0
